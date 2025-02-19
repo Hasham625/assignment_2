@@ -59,9 +59,8 @@ fi
 send_email() {
     local email_body="Changes were detected in ${MONITOR_PATH} and have been committed to Git."
     local email_subject="File Monitor: Changes Detected"
-    
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "\
-        \$ErrorActionPreference = 'Stop'
+
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "
         try {
             \$SMTPServer = '$SMTP_SERVER'
             \$SMTPPort = $SMTP_PORT
@@ -72,16 +71,16 @@ send_email() {
             \$From = '$ZOHO_USER'
             \$Subject = '$email_subject'
             \$Body = '$email_body'
-            
-            Send-MailMessage -SmtpServer \$SMTPServer \
-                -Port \$SMTPPort \
-                -UseSsl \
-                -Credential \$Credential \
-                -From \$From \
-                -To \$To \
-                -Subject \$Subject \
+
+            Send-MailMessage -SmtpServer \$SMTPServer \`
+                -Port \$SMTPPort \`
+                -UseSsl \`
+                -Credential \$Credential \`
+                -From \$From \`
+                -To \$To \`
+                -Subject \$Subject \`
                 -Body \$Body
-            
+
             Write-Output 'Email sent successfully'
         } catch {
             Write-Output \"Error sending email: \$_\"
