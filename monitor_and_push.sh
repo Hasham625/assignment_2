@@ -14,6 +14,11 @@ fi
 
 # Function to send email notification using PowerShell
 send_email() {
+  if [[ -z "$EMAIL_BODY" ]]; then
+    echo "Error: EMAIL_BODY is empty. Email not sent."
+    return 1
+  fi
+
   powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "
     \$SMTPServer = '$SMTP_SERVER'
     \$SMTPPort = $SMTP_PORT
@@ -25,10 +30,16 @@ send_email() {
     \$Subject = '$EMAIL_SUBJECT'
     \$Body = '$EMAIL_BODY'
 
+    if ([string]::IsNullOrWhiteSpace(\$Body)) {
+      Write-Output 'Error: Email body is empty. Email not sent.'
+      exit 1
+    }
+
     Send-MailMessage -SmtpServer \$SMTPServer -Port \$SMTPPort -UseSsl \
       -Credential \$Credential -From \$From -To \$To -Subject \$Subject -Body \$Body
   "
 }
+
 
 # Monitor file for changes
 while true; do
