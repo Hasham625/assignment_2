@@ -14,18 +14,21 @@ fi
 
 # Function to send email notification
 send_email() {
-  curl --request POST \
-    --url https://api.sendgrid.com/v3/mail/send \
-    --header "Authorization: Bearer $SENDGRID_API_KEY" \
-    --header "Content-Type: application/json" \
-    --data '{
-      "personalizations": [{
-        "to": [{"email": "'$COLLABORATORS'"}],
-        "subject": "Repository Update Notification"
-      }],
-      "from": {"email": "'$SENDER_EMAIL'"},
-      "content": [{"type": "text/plain", "value": "Changes detected in repository and pushed to GitHub."}]
-    }'
+  powershell.exe -Command "& {
+    \$SMTPServer = '$SMTP_SERVER';
+    \$SMTPPort = '$SMTP_PORT';
+    \$Username = '$GMAIL_USER';
+    \$Password = '$GMAIL_PASSWORD';
+    \$To = '$COLLABORATORS' -split ',';
+    \$From = '$GMAIL_USER';
+    \$Subject = '$EMAIL_SUBJECT';
+    \$Body = '$EMAIL_BODY';
+
+    \$SMTP = New-Object Net.Mail.SmtpClient(\$SMTPServer, \$SMTPPort);
+    \$SMTP.EnableSsl = \$true;
+    \$SMTP.Credentials = New-Object System.Net.NetworkCredential(\$Username, \$Password);
+    \$SMTP.Send(\$From, \$To, \$Subject, \$Body);
+  }"
 }
 
 # Monitor file for changes
