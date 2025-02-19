@@ -14,11 +14,20 @@ fi
 
 # Function to send email notification using PowerShell
 send_email() {
-  powershell.exe -Command "& {
-    Send-MailMessage -SmtpServer '$SMTP_SERVER' -Port '$SMTP_PORT' -UseSsl `
-      -Credential (New-Object System.Management.Automation.PSCredential('$GMAIL_USER', (ConvertTo-SecureString '$GMAIL_PASSWORD' -AsPlainText -Force))) `
-      -From '$GMAIL_USER' -To '$COLLABORATORS' -Subject '$EMAIL_SUBJECT' -Body '$EMAIL_BODY'
-  }"
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "
+    \$SMTPServer = '$SMTP_SERVER'
+    \$SMTPPort = $SMTP_PORT
+    \$Username = '$GMAIL_USER'
+    \$Password = ConvertTo-SecureString -String '$GMAIL_PASSWORD' -AsPlainText -Force
+    \$Credential = New-Object System.Management.Automation.PSCredential (\$Username, \$Password)
+    \$To = '$COLLABORATORS' -split ','
+    \$From = '$GMAIL_USER'
+    \$Subject = '$EMAIL_SUBJECT'
+    \$Body = '$EMAIL_BODY'
+
+    Send-MailMessage -SmtpServer \$SMTPServer -Port \$SMTPPort -UseSsl \
+      -Credential \$Credential -From \$From -To \$To -Subject \$Subject -Body \$Body
+  "
 }
 
 # Monitor file for changes
