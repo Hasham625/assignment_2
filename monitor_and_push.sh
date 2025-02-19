@@ -12,22 +12,12 @@ if [[ ! -d "$REPO_PATH/.git" ]]; then
   exit 1
 fi
 
-# Function to send email notification
+# Function to send email notification using PowerShell
 send_email() {
   powershell.exe -Command "& {
-    \$SMTPServer = '$SMTP_SERVER';
-    \$SMTPPort = '$SMTP_PORT';
-    \$Username = '$GMAIL_USER';
-    \$Password = '$GMAIL_PASSWORD';
-    \$To = '$COLLABORATORS' -split ',';
-    \$From = '$GMAIL_USER';
-    \$Subject = '$EMAIL_SUBJECT';
-    \$Body = '$EMAIL_BODY';
-
-    \$SMTP = New-Object Net.Mail.SmtpClient(\$SMTPServer, \$SMTPPort);
-    \$SMTP.EnableSsl = \$true;
-    \$SMTP.Credentials = New-Object System.Net.NetworkCredential(\$Username, \$Password);
-    \$SMTP.Send(\$From, \$To, \$Subject, \$Body);
+    Send-MailMessage -SmtpServer '$SMTP_SERVER' -Port '$SMTP_PORT' -UseSsl `
+      -Credential (New-Object System.Management.Automation.PSCredential('$GMAIL_USER', (ConvertTo-SecureString '$GMAIL_PASSWORD' -AsPlainText -Force))) `
+      -From '$GMAIL_USER' -To '$COLLABORATORS' -Subject '$EMAIL_SUBJECT' -Body '$EMAIL_BODY'
   }"
 }
 
